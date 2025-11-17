@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>Lowry 模型教學網站</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Icon -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- MathJax for LaTeX -->
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+
+    <style>
+        :root {
+            --bg: #f4f5fb;
+            --bg-card: #ffffff;
+            --border: #e0e4f0;
+            --text: #1f2933;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --accent-soft: #e0edff;
+            --accent-dark: #1d4ed8;
+            --danger: #dc2626;
+            --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+            --radius-lg: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+            background: radial-gradient(circle at top, #e0edff 0, #f6f7fb 40%, #f3f4f6 100%);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        h1, h2, h3 {
+            margin: 0 0 0.5rem;
+            font-weight: 700;
+        }
+
+        p {
+            margin: 0 0 0.5rem;
+        }
+
+        .page {
+            max-width: 1180px;
+            margin: 20px auto 32px;
+            padding: 0 16px;
+        }
+
+        .hero {
+            background: linear-gradient(120deg, #1d4ed8, #22c1c3);
+            border-radius: 24px;
+            color: #fff;
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .hero-main h1 {
+            font-size: 1.6rem;
+            letter-spacing: 0.03em;
+        }
+
+        .hero-main p {
+            font-size: 0.92rem;
+            opacity: 0.95;
+        }
+
+        .hero-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.78rem;
+        }
+
+        .badge {
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: rgba(15,23,42,0.16);
+            backdrop-filter: blur(6px);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge i {
+            font-size: 0.7rem;
+        }
+
+        .layout {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: minmax(0, 250px) minmax(0, 1fr);
+            gap: 16px;
+        }
+
+        /* Sidebar --------------------------------------------------------- */
+
+        .sidebar {
+            background: rgba(255,255,255,0.9);
+            border-radius: var(--radius-lg);
+            padding: 14px 14px 10px;
+            box-shadow: 0 14px 35px rgba(15,23,42,0.08);
+            border: 1px solid rgba(148,163,184,0.25);
+            height: fit-content;
+            position: sticky;
+            top: 16px;
+        }
+
+        .sidebar-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #111827;
+        }
+
+        .sidebar-title i {
+            color: var(--accent);
+        }
+
+        .nav-list {
+            list-style: none;
+            margin: 6px 0 0;
+            padding: 0;
+            font-size: 0.84rem;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: left;
+            padding: 6px 8px;
+            border-radius: 9px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.83rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .nav-link i {
+            font-size: 0.8rem;
+        }
+
+        .nav-link:hover {
+            background: #eef2ff;
+            color: var(--accent-dark);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+        }
+
+        /* Main content ---------------------------------------------------- */
+
+        .main {
+            min-width: 0;
+        }
+
+        section {
+            display: none;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 18px 18px 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .card + .card {
+            margin-top: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 1.0rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .card-title-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .card-desc {
+            font-size: 0.88rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            margin-top: 10px;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #111827;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tagline::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: var(--accent);
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+            gap: 14px;
+        }
+
+        .two-col + .two-col {
+            margin-top: 10px;
+        }
+
+        .eq-block {
+            border-radius: 10px;
+            padding: 8px 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        .eq-block code {
+            font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.8rem;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .chip {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid #c7d2fe;
+            background: #eef2ff;
+            color: #111827;
+        }
+
+        ul.list-clean {
+            margin: 4px 0;
+            padding-left: 17px;
+            font-size: 0.86rem;
+        }
+
+        ul.list-clean li {
+            margin-bottom: 2px;
+        }
+
+        .note {
+            font-size: 0.8rem;
+            color: var(--muted);
+            border-left: 3px solid var(--accent);
+            padding-left: 8px;
+            margin-top: 4px;
+        }
+
+        .warning {
+            border-left-color: var(--danger);
+            color: var(--danger);
+        }
+
+        @media (max-width: 880px) {
+            .layout {
+                grid-template-columns: minmax(0,1fr);
+            }
+            .sidebar {
+                position: static;
+            }
+            .two-col {
+                grid-template-columns: minmax(0,1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header class="hero">
+        <div class="hero-main">
+            <h1>Lowry 模型｜一步一步理解與操作</h1>
+            <p>
+                這是一個把論文裡一堆 (4-1)～(4-15) 公式「翻譯成白話＋可視化流程」的教學網頁。
+                從概念、公式，到範例運算與限制都放在同一頁，方便你備課或報告直接使用。
+            </p>
+        </div>
+        <div class="hero-badges">
+            <span class="badge"><i class="fa-solid fa-city"></i> 區位配置／都市型態</span>
+            <span class="badge"><i class="fa-solid fa-diagram-project"></i> 連鎖運算流程</span>
+            <span class="badge"><i class="fa-solid fa-calculator"></i> 含完整數值範例</span>
+        </div>
+    </header>
+
+    <div class="layout">
+        <!-- Sidebar -------------------------------------------------------->
+        <aside class="sidebar">
+            <div class="sidebar-title">
+                <i class="fa-solid fa-list-ul"></i>
+                <span>學習路線</span>
+            </div>
+            <ul class="nav-list">
+                <li class="nav-item"><button class="nav-link active" data-target="sec-1">
+                    <i class="fa-solid fa-lightbulb"></i> 1. 模型直覺與架構
+                </button></li>
+                <li class="nav-item"><button class="nav-link" data-target="sec-2">
+                    <i class="fa-solid fa-puzzle-piece"></i> 2. 變數與假設
+                </button></li>
+                <li class="nav-item"><button class="nav-link" data-target="sec-3">
+                    <i class="fa-solid fa-store"></i> 3. 非基礎產業分配式
+                </button></li>
+                <li class="nav-item"><button class="nav-link" data-target="sec-4">
+                    <i class="fa-solid fa-people-roof"></i> 4. 居住人口與戶數
+                </button></li>
+                <li class="nav-item"><button class="nav-link" data-target="sec-5">
+                    <i class="fa-solid fa-map"></i> 5. 土地面積與密度限制
+                </button></li>
+                <li class="nav-item"><button class="nav-link" data-target="sec-6">
+                    <i class="fa-solid fa-ban"></i> 6. 最小規模與封頂檢核
+                </button></li>
+                <li class="nav-item"><button class="nav-link" data-target="sec-7">
+                    <i class="fa-solid fa-play"></i> 7. 完整操作流程
+                </button></li>
+                <li class="nav-item"><button class="nav-link" data-target="sec-8">
+                    <i class="fa-solid fa-calculator"></i> 8. 範例 Ex.1 操作
+                </button></li>
+                <li class="nav-item"><button class="nav-link" data-target="sec-9">
+                    <i class="fa-solid fa-circle-exclamation"></i> 9. 模型限制與注意事項
+                </button></li>
+            </ul>
+        </aside>
+
+        <!-- Main ----------------------------------------------------------->
+        <main class="main">
+
+            <!-- 1. Overview ------------------------------------------------>
+            <section id="sec-1">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>1. Lowry 模型在做什麼？</span>
+                            <span class="card-title-badge">把「出口產業」變成整個城市</span>
+                        </div>
+                    </div>
+
+                    <p class="card-desc">
+                        Lowry 模型是一種經濟基礎型的土地使用－交通互動模型。核心概念是：
+                        <strong>基礎產業</strong>（例如出口導向工業、外來旅客等）帶進收入，
+                        形成就業與人口；人口又會產生對各種 <strong>非基礎產業</strong>（服務、零售、地區性設施）的需求，
+                        而這些活動必須在空間上找到落點，並受到距離與土地容量的限制。
+                    </p>
+
+                    <div class="tagline">整體架構（直覺版）</div>
+                    <div class="two-col">
+                        <div>
+                            <ul class="list-clean">
+                                <li><strong>輸入：</strong>各分區 <strong>基礎產業就業</strong> \(E_i^B\)、土地面積 \(A_j\)、不可開發地 \(A_j^U\)、
+                                    基礎產業用地 \(A_j^B\)、空間阻隔 \(T_{ij}\) 等。</li>
+                                <li><strong>第一層：</strong>基礎產業就業 \(\Rightarrow\) 全市就業 \(E\)、
+                                    戶數 \(N\)。</li>
+                                <li><strong>第二層：</strong>用距離權重將 \(N\) 分配到各分區 \(N_j\)。</li>
+                                <li><strong>第三層：</strong>由 \(N\) 推出各類非基礎產業總量 \(E^k\)，
+                                    再以空間阻隔＋基礎產業就業決定 \(E_i^k\) 在各地的分布。</li>
+                                <li><strong>第四層：</strong>檢查最小規模、土地容量、住宅密度限制；
+                                    不符者調整後，重新回到第一層，直到收斂。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <div class="eq-block">
+                                <strong>關鍵觀念：兩種就業 + 一個連鎖效果</strong><br>
+                                <ul class="list-clean">
+                                    <li><strong>基礎產業</strong> \(E_i^B\)：外來需求決定，視為外生。</li>
+                                    <li><strong>非基礎產業</strong> \(E_i^k\)：由居民與就業人口需求內生決定。</li>
+                                    <li>兩者合成總就業 \(E_i = E_i^B + \displaystyle\sum_k E_i^k\)，
+                                        再透過扶養戶數 \(f\) 轉為戶數 \(N\)。</li>
+                                </ul>
+                                <div class="chip-row">
+                                    <span class="chip">出口導向 → 基礎就業</span>
+                                    <span class="chip">基礎就業 → 戶數</span>
+                                    <span class="chip">戶數 → 服務業</span>
+                                    <span class="chip">服務業再回頭增加就業</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Variables ----------------------------------------------->
+            <section id="sec-2">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>2. 變數與假設：看懂符號在代表什麼</span>
+                            <span class="card-title-badge">先弄清主角是誰</span>
+                        </div>
+                    </div>
+
+                    <p class="card-desc">
+                        原文裡有很多上標、下標與 k、i、j 的組合。這一節把它們整理成一張「角色表」，
+                        之後看公式就比較不會迷路。
+                    </p>
+
+                    <div class="two-col">
+                        <div>
+                            <div class="tagline">分區與就業</div>
+                            <ul class="list-clean">
+                                <li>\(i\)：就業分區（工作地）；\(j\)：居住分區（住家）。</li>
+                                <li>\(k\)：非基礎產業的種類，例如：
+                                    <ul>
+                                        <li>\(k=1\)：鄰里性服務（超商、小學…）。</li>
+                                        <li>\(k=2\)：地區性服務（醫院、大賣場…）。</li>
+                                        <li>\(k=3\)：都會性服務（大型百貨、專業服務…）。</li>
+                                    </ul>
+                                </li>
+                                <li>\(E_i^B\)：第 \(i\) 區的基礎產業就業人數。</li>
+                                <li>\(E_i^k\)：第 \(i\) 區、第 \(k\) 類非基礎產業就業人數。</li>
+                                <li>\(E_i = E_i^B + \sum_k E_i^k\)：第 \(i\) 區總就業。</li>
+                                <li>\(E^k = \sum_i E_i^k\)：全市第 \(k\) 類非基礎產業就業總量。</li>
+                            </ul>
+
+                            <div class="tagline">人口與戶數</div>
+                            <ul class="list-clean">
+                                <li>\(N_j\)：第 \(j\) 居住分區的戶數。</li>
+                                <li>\(N = \sum_j N_j\)：全市戶數總量。</li>
+                                <li>\(f\)：每位就業人口所扶養的戶數（扶養比）。</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <div class="tagline">土地與容量</div>
+                            <ul class="list-clean">
+                                <li>\(A_j\)：第 \(j\) 區土地總面積。</li>
+                                <li>\(A_j^U\)：不可發展土地（保護區、公共設施…）。</li>
+                                <li>\(A_j^B\)：基礎產業使用的土地。</li>
+                                <li>\(A_i^R\)：第 \(i\) 區非基礎產業用地需求。</li>
+                                <li>\(A_j^H\)：可作住宅使用的土地：
+                                    $$A_j^H = A_j - A_j^U - A_j^B - A_j^R$$
+                                </li>
+                                <li>\(Z_j^H\)：第 \(j\) 區住宅最大密度（戶／土地單位）。</li>
+                            </ul>
+
+                            <div class="tagline">需求參數與空間阻隔</div>
+                            <ul class="list-clean">
+                                <li>\(a^k\)：每一戶所產生之第 \(k\) 類非基礎產業就業人數。</li>
+                                <li>\(e^k\)：第 \(k\) 類非基礎產業每一就業所需土地。</li>
+                                <li>\(c^k,d^k\)：決定非基礎產業需求來源的權重，\(c^k+d^k=1\)。
+                                    <ul>
+                                        <li>\(c^k\)：「居民戶數」對第 \(k\) 類服務業的影響。</li>
+                                        <li>\(d^k\)：「就業人口」對第 \(k\) 類服務業的影響。</li>
+                                    </ul>
+                                </li>
+                                <li>\(T_{ij}, T_{ij}^k\)：空間阻隔因素（例如通勤時間、成本）。</li>
+                                <li>\(Z^k\)：第 \(k\) 類非基礎產業在一個分區可生存的最小規模。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Non-basic employment allocation ------------------------->
+            <section id="sec-3">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>3. 非基礎產業分配公式：\(E_i^k\) 怎麼來？</span>
+                            <span class="card-title-badge">看起來像機率，其實是分配權重</span>
+                        </div>
+                    </div>
+
+                    <p class="card-desc">
+                        這一節對應原文 (4-3)、(4-3-1)、(4-3-2)、(4-3-3)。目標是決定：
+                        <strong>第 \(k\) 類非基礎產業的總量 \(E^k\)，要分給每一個分區 \(i\) 多少？</strong>
+                    </p>
+
+                    <div class="tagline">3-1 原始分配式 (4-3)</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+\[
+E_i^k
+= b^k\left[
+\sum_{j=1}^{n}
+\left(
+\frac{c^k N_j}{T_{ij}^k}
+\right)
++ d^k E_i
+\right]
+\tag{4-3}
+\]
+                            </div>
+                            <ul class="list-clean">
+                                <li>括號內兩部分：
+                                    <ol style="margin:2px 0 0 18px;padding-left:0;">
+                                        <li>\(\displaystyle\sum_j \frac{c^k N_j}{T_{ij}^k}\)：來自居民的需求，
+                                            距離越近（\(T_{ij}^k\) 小），貢獻越大。</li>
+                                        <li>\(d^k E_i\)：來自就業人口本身的需求，例如上班地附近的餐飲。</li>
+                                    </ol>
+                                </li>
+                                <li>\(b^k\)：調整因子，負責把這些「指數」縮放成真正的就業人數。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="note">
+                                可以把括號內看成「第 \(i\) 區對第 \(k\) 類服務業的吸引力指數」，
+                                越大表示越適合設第 \(k\) 類設施；\(b^k\) 則是把這些指數拉到
+                                \(E^k\) 的實際規模。
+                            </p>
+                            <div class="eq-block">
+                                把所有分區加總，可得
+\[
+\sum_{i=1}^{n} E_i^k
+  = b^k \left[
+\sum_{i=1}^{n}
+\sum_{j=1}^{n}
+\left(
+\frac{c^k N_j}{T_{ij}^k}
+\right)
++ d^k \sum_{i=1}^{n} E_i
+\right]
+= E^k
+\tag{4-3-1}
+\]
+                                因此
+\[
+b^k
+= \frac{E^k}{\displaystyle
+\sum_{i=1}^{n}
+\left[
+\sum_{j=1}^{n}\left(\frac{c^k N_j}{T_{ij}^k}\right)
++ d^k E_i
+\right]}
+\tag{4-3-2}
+\]
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tagline">3-2 機率形式的分配函數 (4-3-3)</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+\[
+E_i^k
+= E^k
+\cdot
+\frac{
+\displaystyle
+\sum_{j=1}^{n}
+\left(
+\frac{c^k N_j}{T_{ij}^k}
+\right)
++ d^k E_i
+}{
+\displaystyle
+\sum_{i=1}^{n}
+\left[
+\sum_{j=1}^{n}
+\left(\frac{c^k N_j}{T_{ij}^k}\right)
++ d^k E_i
+\right]
+}
+\tag{4-3-3}
+\]
+                            </div>
+                        </div>
+                        <div>
+                            <p class="card-desc" style="margin-bottom:2px;">
+                                括號中的分數看起來就像一個「機率」：
+                            </p>
+                            <ul class="list-clean">
+                                <li>分子：第 \(i\) 區的吸引力指數。</li>
+                                <li>分母：全市所有分區的指數總和。</li>
+                                <li>因此各區指數的比重就是 \(E^k\) 分配到該區的比例。</li>
+                            </ul>
+                            <p class="note">
+                                這種寫法的好處：<strong>無論怎麼算，\(\sum_i E_i^k = E^k\) 一定成立</strong>，
+                                不會因為四捨五入等問題，讓總量跑掉。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Population & households --------------------------------->
+            <section id="sec-4">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>4. 居住人口與戶數：由就業推出戶數，再分到各區</span>
+                            <span class="card-title-badge">「一份工作養幾戶人？」</span>
+                        </div>
+                    </div>
+
+                    <p class="card-desc">
+                        接下來是 (4-5)、(4-6)、(4-7)、(4-8) 與 (4-8-3)。重點有兩步：
+                        先用扶養比 \(f\) 把就業變成戶數，接著用距離權重
+                        \(T_{ij}\) 把戶數分派到各居住分區。
+                    </p>
+
+                    <div class="tagline">4-1 各分區總就業與戶數</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+                                各分區總就業：
+\[
+E_i = E_i^B + \sum_{k=1}^{m} E_i^k
+\tag{4-5}
+\]
+                                全市戶數總量：
+\[
+N = f \sum_{i=1}^{n} E_i
+\tag{4-7}
+\]
+                            </div>
+                            <p class="note">
+                                \(f\) 可以理解為：<br>
+                                每一位就業人口平均對應幾個「家戶」。
+                                若一家裡有兩個人就業，\(f\) 就會小於 1。
+                            </p>
+                        </div>
+                        <div>
+                            <div class="tagline">4-2 戶數如何分到各區？</div>
+                            <div class="eq-block">
+                                原式 (4-8)：
+\[
+N_j = g \sum_{i=1}^{n}\frac{E_i}{T_{ij}}
+\tag{4-8}
+\]
+                                \(T_{ij}\) 越小（越近、越方便），該工作地對第 \(j\) 區的居住吸引力越強。<br>
+                                \(g\) 是調整因子，使得
+\[
+\sum_{j=1}^{n} N_j = N
+\tag{4-8-1}
+\]
+                                因此
+\[
+g =
+\frac{N}{\displaystyle
+\sum_{j=1}^{n}\sum_{i=1}^{n}\frac{E_i}{T_{ij}}
+}
+\tag{4-8-2}
+\]
+                                帶入後得到「機率形式」：
+\[
+N_j =
+N\cdot
+\frac{\displaystyle\sum_{i=1}^{n}\frac{E_i}{T_{ij}}}
+{\displaystyle\sum_{j=1}^{n}\sum_{i=1}^{n}\frac{E_i}{T_{ij}}}
+\tag{4-8-3}
+\]
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="note">
+                        直覺上：\(\sum_i \frac{E_i}{T_{ij}}\) 可以看成
+                        「從第 \(j\) 區出發，去所有就業地的便利度加總」，越大表示住在這裡越方便，
+                        因此分配到的戶數就越多。
+                    </p>
+                </div>
+            </section>
+
+            <!-- 5. Land use & density --------------------------------------->
+            <section id="sec-5">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>5. 土地面積與住宅密度限制</span>
+                            <span class="card-title-badge">服務業也要占地、住宅有上限</span>
+                        </div>
+                    </div>
+
+                    <p class="card-desc">
+                        當非基礎產業就業 \(E_i^k\) 決定後，就可以推算它們需要多少土地；
+                        再加上不可開發地與基礎產業用地，就能知道剩下多少土地可給住宅使用，
+                        並檢查密度是否過高。
+                    </p>
+
+                    <div class="tagline">5-1 非基礎產業用地需求 (4-6)</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+\[
+A_i^R = \sum_{k=1}^{m} e^k E_i^k
+\tag{4-6}
+\]
+                            </div>
+                            <ul class="list-clean">
+                                <li>\(e^k\)：第 \(k\) 類非基礎產業，每一就業所需土地，例如
+                                    1.9 \(\text{m}^2\)／人。</li>
+                                <li>因此 \(E_i^k\) 越大，該區非基礎產業用地 \(A_i^R\) 越大。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <div class="tagline">5-2 可用住宅土地與非負限制 (4-12)</div>
+                            <div class="eq-block">
+                                可作住宅使用的土地：
+\[
+A_j^H = A_j - A_j^U - A_j^B - A_j^R
+\tag{4-1重寫}
+\]
+                                若有分區出現
+\[
+A_j^H \le A_j - A_j^U - A_j^B
+\tag{4-12}
+\]
+                                代表住宅面積變成 0 或負值，表示土地被
+                                非基礎產業「吃光」，此時必須令該區不再配置住宅。
+                            </div>
+                            <p class="note">
+                                在實作上，若 \(A_j^H\) 變成 0，即代表該區僅供
+                                基礎與非基礎產業使用，不再新配住房。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Constraints ---------------------------------------------->
+            <section id="sec-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>6. 最小規模與住宅密度封頂</span>
+                            <span class="card-title-badge">哪裡「撐不住」、哪裡「滿了」？</span>
+                        </div>
+                    </div>
+
+                    <p class="card-desc">
+                        Lowry 模型除了距離與面積外，還有兩組關鍵限制：
+                        <strong>非基礎產業最小規模</strong> 和 <strong>住宅最大密度</strong>。
+                        前者會讓小規模服務業直接消失，後者則避免某區住宅塞太滿。
+                    </p>
+
+                    <div class="tagline">6-1 非基礎產業最小規模檢核 (4-10)</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+\[
+E_i^k \ge Z^k
+\tag{4-10}
+\]
+                            </div>
+                            <ul class="list-clean">
+                                <li>\(Z^k\)：第 \(k\) 類非基礎產業最小就業門檻。</li>
+                                <li>若某分區 \(E_i^k &lt; Z^k\)，表示市場太小，
+                                    這類產業無法獨立生存，令 \(E_i^k = 0\)。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="note">
+                                那原本分到這些「不足規模」分區的量怎麼辦？<br>
+                                原文做法：把不符合門檻的分區集合記為 \(W^R\)，
+                                不在其中的分區重新計算一個 \(b'^k\)，
+                                讓
+\[
+\sum_{i\notin W^R} E_i^k = E^k
+\tag{4-10-2}
+\]
+                                也就是把原本要分給「撐不起來的分區」的量，
+                                重新分攤到其他符合門檻的分區。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="tagline">6-2 最大住宅密度檢核 (4-11)</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+\[
+N_j \le Z_j^H A_j^H
+\tag{4-11}
+\]
+                            </div>
+                            <ul class="list-clean">
+                                <li>\(Z_j^H\)：第 \(j\) 區住宅最高密度（戶／單位土地）。</li>
+                                <li>若 \(N_j\) 超過此上限，代表住宅太擁擠，必須被限制。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="note">
+                                讓不符上限的分區集合記為 \(W^H\)，
+                                對這些分區固定 \(N_j = Z_j^H A_j^H\)，
+                                其餘分區用新的比例係數 \(g'\) 重新分配剩餘戶數，使
+\[
+\sum_{j\notin W^H} N_j
+= N - \sum_{j\in W^H} Z_j^H A_j^H
+\tag{4-11-2}
+\]
+                                這樣一來，全市戶數總量仍維持 \(N\)，但擁擠分區被「封頂」了。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Workflow ------------------------------------------------->
+            <section id="sec-7">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>7. 完整操作流程：從輸入到收斂</span>
+                            <span class="card-title-badge">一張表看懂所有步驟</span>
+                        </div>
+                    </div>
+
+                    <p class="card-desc">
+                        這一節把所有公式串成一個「演算法流程」。實際操作時，只要照順序跑，
+                        每一輪迭代都會更新 \(E_i, N_j, E_i^k, A_i^R, A_j^H\)，
+                        直到結果不再明顯改變。
+                    </p>
+
+                    <div class="eq-block">
+                        <ol style="margin:0;padding-left:18px;font-size:0.86rem;">
+                            <li><strong>輸入資料：</strong>
+                                \(E_i^B, A_j, A_j^U, A_j^B, T_{ij}, T_{ij}^k, a^k, e^k, f, c^k, d^k,
+                                Z^k, Z_j^H\)。</li>
+                            <li><strong>收斂檢測值：</strong>
+                                先用 (4-13)～(4-15) 算出
+                                \(E^*, N^*, E^{*k}\)，作為最後的參考目標。</li>
+                            <li><strong>初始化 (Iteration 0)：</strong>
+                                設 \(E_i = E_i^B\)、\(E_i^k=0\)、\(A_j^R=0\)。</li>
+                            <li><strong>Step 1：</strong>
+                                由 (4-5)、(4-7) 算出全市就業 \(E\) 與戶數 \(N\)。</li>
+                            <li><strong>Step 2：</strong>
+                                用 (4-8-3) 把 \(N\) 分成各區 \(N_j\)，
+                                再用 (4-11) 檢查住宅密度，必要時調整為 (4-11-1)。</li>
+                            <li><strong>Step 3：</strong>
+                                用 (4-2) 算出各類非基礎產業總量 \(E^k = a^k N\)。</li>
+                            <li><strong>Step 4：</strong>
+                                用 (4-3-3) 算出各區非基礎產業就業 \(E_i^k\)，
+                                再用 (4-10) 做最小規模檢核，
+                                不符門檻的分區重新分配 (4-10-1)。</li>
+                            <li><strong>Step 5：</strong>
+                                以 (4-6) 算出 \(A_i^R\)，進而得到新的住宅土地 \(A_j^H\)，
+                                檢查 (4-12) 非負限制。</li>
+                            <li><strong>Step 6：</strong>
+                                更新各區總就業 \(E_i = E_i^B + \sum_k E_i^k\)，
+                                回到 Step 1 進行下一輪迭代。</li>
+                            <li><strong>Step 7：</strong>
+                                當 \(E, N, E_i^k, N_j\) 與上一次迭代的差距足夠小，
+                                或接近 \(E^*, N^*\) 時，即視為收斂。</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Example Ex.1 -------------------------------------------->
+            <section id="sec-8">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>8. 範例 Ex.1：四分區城市操作示範（前兩次迭代）</span>
+                            <span class="card-title-badge">把公式換成真正的數字</span>
+                        </div>
+                    </div>
+
+                    <p class="card-desc">
+                        這個例子假設城市只有 4 個分區（1～4），預先給定基礎產業就業、土地面積、
+                        空間阻隔因素，以及 3 種非基礎產業：
+                        <strong>鄰里性(1)、地區性(2)、都會性(3)</strong>。
+                        我們會依照前面各節的公式，一步一步跑到第二次迭代為止，
+                        並說明每一步的意義與限制。
+                    </p>
+
+                    <!-- 8-1 Input data -->
+                    <div class="tagline">8-1 輸入資料：表 4-1、表 4-2 的意義</div>
+                    <div class="two-col" style="margin-top:4px;">
+                        <div>
+                            <div class="eq-block">
+                                <strong>基礎產業就業與土地</strong><br>
+                                基礎產業就業：
+\[
+(E_1^B,E_2^B,E_3^B,E_4^B)=(500,1000,1500,2000)
+\]
+\[
+E^B=\sum_{i=1}^4E_i^B=5000
+\]<br>
+土地面積：
+\[
+(A_1,A_2,A_3,A_4)=(2000,2000,2000,4000)
+\]<br>
+不可發展土地：
+\[
+(A_1^U,\dots,A_4^U)=(10,10,10,20)
+\]<br>
+基礎產業用地：
+\[
+(A_1^B,\dots,A_4^B)=(200,250,300,350)
+\]
+                            </div>
+                            <ul class="list-clean">
+                                <li>初始非基礎產業用地 \(A_j^R=0\)，
+                                    因此可作住宅的土地：
+\[
+A_j^H = A_j - A_j^U - A_j^B
+= (1790,1740,1690,3630)
+\]
+                                </li>
+                                <li>\(T_{ij},T_{ij}^k\)：4×4 的空間阻隔矩陣，
+                                    例：區 1 到 1、2、3、4 的值分別為 5、10、15、10 等。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <div class="eq-block">
+                                <strong>非基礎產業參數</strong><br>
+                                非基礎產業最小規模：
+\[
+Z^1=30,\quad Z^2=100,\quad Z^3=200
+\]<br>
+每戶產生的就業：
+\[
+a^1=0.1064,\quad a^2=0.1808,\quad a^3=0.1206
+\]<br>
+每就業所需土地：
+\[
+e^1=1.9,\quad e^2=1.3,\quad e^3=0.08
+\]<br>
+需求權重：
+\[
+(c^1,d^1)=(0.9,0.1)
+\]
+\[
+(c^2,d^2)=(0.7,0.3)
+\]
+\[
+(c^3,d^3)=(0.5,0.5)
+\]<br>
+扶養戶數：
+\[
+f=0.8504
+\]
+住宅最大密度：
+\[
+Z^H=1.5
+\]
+                            </div>
+                            <p style="font-size:13px;margin-top:4px;">
+                                這些參數會同時控制：<strong>城市總規模</strong>（透過 \(f,a^k\)）、
+                                <strong>服務業是否能撐得住</strong>（透過 \(Z^k\)），以及
+                                <strong>住宅是否爆量</strong>（透過 \(Z^H\) 與 \(A_j^H\)）。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 8-2 Convergence check -->
+                    <div class="tagline" style="margin-top:10px;">8-2 收斂檢測值 \(E^*,N^*,E^{*k}\)</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+                                先用 (4-13) 算出理論平衡總就業：
+\[
+E^* = E^B\left[1-f\sum_{k=1}^{3}a^k\right]^{-1}
+\]
+\[
+E^* = 5000\left[1-0.85048(0.1064+0.1808+0.1206)\right]^{-1}
+\approx 7655
+\]
+                            </div>
+                            <p style="font-size:13px;">
+                                之後每一輪算出的 \(E\) 都會拿來與 \(E^*\) 比較，
+                                看城市規模是否逐步接近理論平衡。
+                            </p>
+                        </div>
+                        <div>
+                            <div class="eq-block">
+                                由 (4-14)、(4-15)：
+\[
+N^* = fE^* \approx 0.8504\times 7655 \approx 6510
+\]
+\[
+E^{*1} = a^1N^* \approx 693,\quad
+E^{*2}\approx 1177,\quad
+E^{*3}\approx 785
+\]
+                            </div>
+                            <p style="font-size:13px;">
+                                這表示：若基礎產業維持 \(E^B=5000\)，
+                                長期而言全市大約會有 6510 戶、三類服務業就業如上。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 8-3 Iteration 1 init -->
+                    <div class="tagline" style="margin-top:12px;">8-3 第一次迭代 (Iteration 1)：初始化</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+\[
+E_i = E_i^B,\quad
+E = \sum_{i=1}^4 E_i^B = 5000
+\]
+\[
+N = fE = 5000\times 0.8504 = 4252
+\]
+\[
+E^k = 0\quad(k=1,2,3)
+\]
+                            </div>
+                            <p style="font-size:13px;">
+                                也就是說，城市一開始只有基礎產業，養出了 4252 戶居民，
+                                服務業尚未出現。
+                            </p>
+                        </div>
+                        <div>
+                            <div class="eq-block">
+                                住宅可用土地再確認一次：
+\[
+(A_1^H,A_2^H,A_3^H,A_4^H)=(1790,1740,1690,3630)
+\]
+                            </div>
+                            <p style="font-size:13px;">
+                                後面所有密度檢核都會用到這組數字，
+                                代表每區能接納住宅的空間大小。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 8-4 Allocate households -->
+                    <div class="tagline" style="margin-top:12px;">8-4 居住戶數分派</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+                                用 (4-8-3)：
+\[
+N_j =
+N\cdot
+\frac{\displaystyle\sum_{i=1}^4\frac{E_i}{T_{ij}}}
+{\displaystyle\sum_{j=1}^4\sum_{i=1}^4\frac{E_i}{T_{ij}}}
+\]
+先算每一居住分區的吸引力：
+\[
+\sum_{i=1}^4\frac{E_i}{T_{i1}}=100+100+100+200=500
+\]
+\[
+\sum_{i=1}^4\frac{E_i}{T_{i2}}=50+200+150+133=533
+\]
+\[
+\sum_{i=1}^4\frac{E_i}{T_{i3}}=33+100+300+200=633
+\]
+\[
+\sum_{i=1}^4\frac{E_i}{T_{i4}}=50+67+150+400=667
+\]
+全市總和：
+\[
+\sum_{j=1}^4\sum_{i=1}^4\frac{E_i}{T_{ij}}=2333
+\]
+                            </div>
+                        </div>
+                        <div>
+                            <div class="eq-block">
+                                代入公式分配戶數：
+\[
+N_1 = 4252\times\frac{500}{2333}\approx 911
+\]
+\[
+N_2 = 4252\times\frac{533}{2333}\approx 971
+\]
+\[
+N_3 = 4252\times\frac{633}{2333}\approx 1154
+\]
+\[
+N_4 = 4252\times\frac{667}{2333}\approx 1216
+\]
+                            </div>
+                            <p style="font-size:13px;">
+                                第 4 區到各就業地都相對便利，
+                                因此得到最大的戶數 \(N_4\)。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 8-5 Density check -->
+                    <div class="tagline" style="margin-top:12px;">8-5 居住密度檢核</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+                                先算每區最大可容納戶數：
+\[
+A_j^H\times Z^H
+=(1790,1740,1690,3630)\times1.5
+=(2685,2610,2535,5445)
+\]
+                            </div>
+                        </div>
+                        <div>
+                            <div class="eq-block">
+                                比較：
+\[
+N_1=911&lt;2685,\;
+N_2=971&lt;2610
+\]
+\[
+N_3=1154&lt;2535,\;
+N_4=1216&lt;5445
+\]
+皆符合 (4-11) 限制。
+                            </div>
+                            <p style="font-size:13px;">
+                                所以這一輪不需要依 (4-11-1) 做重新調整。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 8-6 Non-basic totals -->
+                    <div class="tagline" style="margin-top:12px;">8-6 非基礎產業總規模：\(E^k = a^k N\)</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+\[
+E^1 = 0.1064\times4252\approx452
+\]
+\[
+E^2 = 0.1808\times4252\approx769
+\]
+\[
+E^3 = 0.1206\times4252\approx513
+\]
+                            </div>
+                        </div>
+                        <div>
+                            <p style="font-size:13px;margin-top:4px;">
+                                表示在 4252 戶居民的需求下，
+                                全市可以支撐約 452 人的鄰里性服務、
+                                769 人的地區性服務、513 人的都會性服務。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 8-7 Non-basic spatial allocation -->
+                    <div class="tagline" style="margin-top:12px;">8-7 非基礎產業在各分區的分布</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+                                以第 1 類（鄰里性）為例，
+                                先算每一就業分區的吸引力指數：
+\[
+I_i^1 =
+c^1\sum_{j=1}^4\frac{N_j}{T_{ij}^1}
++ d^1E_i
+\]
+例如 \(i=1\)：
+\[
+I_1^1 = 0.9\left(
+\frac{911}{5}+\frac{971}{10}+\frac{1154}{15}+\frac{1216}{10}
+\right)
++0.1\times500
+\approx480.02
+\]
+同理可得：
+\[
+I_2^1\approx533.62,\;
+I_3^1\approx609.18,\;
+I_4^1\approx715.30
+\]
+總和約
+\[
+\sum_{i=1}^4I_i^1\approx2338.12
+\]
+                            </div>
+                            <p style="font-size:13px;">
+                                對 \(k=2,3\) 也做同樣計算，只是改用
+                                \((c^2,d^2)\)、\((c^3,d^3)\)，
+                                分別得到總和約 2888.94、3492.10。
+                            </p>
+                        </div>
+                        <div>
+                            <div class="eq-block">
+                                再用 (4-3-3) 分配：
+\[
+E_i^k = E^k\frac{I_i^k}{\sum_i I_i^k}
+\]
+以 \(k=1\) 為例：
+\[
+E_1^1 = 452\times\frac{480.02}{2338.12}\approx93
+\]
+\[
+E_2^1\approx103,\;
+E_3^1\approx118,\;
+E_4^1\approx138
+\]
+對 \(k=2\) 得：
+\[
+(129,170,215,256)
+\]
+對 \(k=3\) 得：
+\[
+(72,109,148,185)
+\]
+                            </div>
+                            <p style="font-size:13px;">
+                                可以看到第 4 區在各類產業中都是最大宗，
+                                因為它的居民多、基礎就業也多。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 8-8 Min-size constraint -->
+                    <div class="tagline" style="margin-top:12px;">8-8 最小規模限制：第三類服務業整體消失</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+\[
+E_i^1=(93,103,118,138)
+\]
+\[
+E_i^2=(129,170,215,256)
+\]
+\[
+E_i^3=(72,109,148,185)
+\]
+最小規模：
+\[
+Z^1=30,\;Z^2=100,\;Z^3=200
+\]
+                            </div>
+                        </div>
+                        <div>
+                            <div class="eq-block">
+                                檢核：
+\[
+E_i^1&gt;30\Rightarrow\text{全部保留}
+\]
+\[
+E_i^2&gt;100\Rightarrow\text{全部保留}
+\]
+\[
+E_i^3&lt;200\Rightarrow E_i^3=0,\;\forall i
+\]
+                            </div>
+                            <p style="font-size:13px;">
+                                由於沒有任何分區的都會性服務業能達到 200 人，
+                                這一輪就視為「都會性服務業尚未形成」。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 8-9 Update employment and totals -->
+                    <div class="tagline" style="margin-top:12px;">8-9 更新各區就業與總量</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+                                重新加總三類非基礎產業：
+\[
+E^1 = 93+103+118+138 = 452
+\]
+\[
+E^2 = 129+170+215+256 = 770
+\]
+\[
+E^3 = 0
+\]
+各區非基礎產業就業：
+\[
+E_1^k=93+129+0=222
+\]
+\[
+E_2^k=103+170+0=273
+\]
+\[
+E_3^k=118+215+0=333
+\]
+\[
+E_4^k=138+256+0=394
+\]
+                            </div>
+                        </div>
+                        <div>
+                            <div class="eq-block">
+                                再加上基礎產業：
+\[
+E_1 = 222+500=722
+\]
+\[
+E_2 = 273+1000=1273
+\]
+\[
+E_3 = 333+1500=1833
+\]
+\[
+E_4 = 394+2000=2394
+\]
+\[
+E = 722+1273+1833+2394 = 6222
+\]
+                            </div>
+                            <p style="font-size:13px;">
+                                總就業已由 5000 增加到 6222，
+                                但仍小於理論平衡值 \(E^*\approx7655\)，
+                                因此還需要下一輪迭代。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 8-10 Iteration 2 init -->
+                    <div class="tagline" style="margin-top:12px;">8-10 第二次迭代 (Iteration 2) 的起始條件</div>
+                    <div class="two-col">
+                        <div>
+                            <div class="eq-block">
+                                依新的總就業 \(E=6222\)，再算一次戶數：
+\[
+N = fE = 6222\times0.8504\approx5290
+\quad(< N^*=6510)
+\]
+非基礎產業用地 (4-6)：
+\[
+A_1^R = 1.9\times93 + 1.3\times129 + 0.08\times0 \approx 344.4
+\]
+\[
+A_2^R \approx 416.7,\;
+A_3^R \approx 503.7,\;
+A_4^R \approx 595.0
+\]
+                            </div>
+                        </div>
+                        <div>
+                            <div class="eq-block">
+                                更新住宅土地：
+\[
+(A_1^H,\dots,A_4^H)
+=(2000,2000,2000,4000)
+\]
+\[
+-(10,10,10,20)
+\]
+\[
+-(200,250,300,350)
+\]
+\[
+-(344.4,416.7,503.7,595.0)
+\]
+\[
+\approx(1445.6,1323.3,1186.3,3035)
+\]
+                            </div>
+                            <p style="font-size:13px;">
+                                這些值皆大於 0，符合 (4-12) 非負限制，
+                                因此不需要進一步調整。接下來的 Iteration 2
+                                就會以這組新的 \(E_i\)、\(A_j^H\)
+                                再跑一次「\(E\to N\to E^k\to E_i\)」流程，
+                                直到結果收斂。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. Limitations --------------------------------------------->
+            <section id="sec-9">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>9. Lowry 模型的限制與注意事項</span>
+                            <span class="card-title-badge">怎麼用、又要對哪些地方保持懷疑</span>
+                        </div>
+                    </div>
+
+                    <p class="card-desc">
+                        最後，把投影片中的注意事項整理成五點。這些並不是要否定 Lowry 模型，
+                        而是提醒：<strong>模型只是簡化的世界</strong>，在解讀與應用時要保留空間給現實世界。
+                    </p>
+
+                    <ol class="list-clean" style="margin-left:18px;font-size:0.86rem;">
+                        <li style="margin-bottom:6px;">
+                            <strong>1. 靜態 (static)，不是動態 (dynamic)。</strong><br>
+                            Lowry 模型只能告訴我們在「某種條件下最終可能的平衡結果」，
+                            不會描述發展過程中每一年、每一波投資的時序。
+                            若研究重點是都市成長路徑或調適時序，需搭配其他動態模型。
+                        </li>
+
+                        <li style="margin-bottom:6px;">
+                            <strong>2. 分派函數只看人口、就業與空間阻隔。</strong><br>
+                            真實生活中的居住／就業選擇還會受到收入、族群、偏好、公設品質、
+                            治安、環境風險等影響；但基本 Lowry 模型裡不包含這些變數。
+                            使用時要警覺：<span style="color:var(--danger);">被忽略的因素可能放大或縮小某些差異</span>，
+                            需要以額外分析或情境討論補上。
+                        </li>
+
+                        <li style="margin-bottom:6px;">
+                            <strong>3. 需求為主，供給限制多以「容量」間接表現。</strong><br>
+                            模型的重點在估計在某種戶數下產生多少服務需求，
+                            而不是完整的市場供需均衡。
+                            住宅供應、營建成本、資金與土地管制等供給面條件，
+                            大多只透過「最大密度」和「土地非負」這類容量限制間接反映。
+                        </li>
+
+                        <li style="margin-bottom:6px;">
+                            <strong>4. 全部建立在經濟基礎理論上。</strong><br>
+                            若某城市的發展並非由出口部門帶動，
+                            或是非基礎產業本身也有大量外來需求，
+                            則「基礎產業決定整體規模」的假設就會變得薄弱。
+                            這時應重新檢視哪些產業被視為基礎、哪些被視為非基礎。
+                        </li>
+
+                        <li style="margin-bottom:6px;">
+                            <strong>5. 空間阻隔因素 \(T_{ij}\) 被視為固定常數。</strong><br>
+                            在模型裡，\(T_{ij}\) 不會因為人口或產業重分布而改變；
+                            但現實中，新建捷運、道路壅塞、票價調整都會大幅改變通勤成本。
+                            此外，選擇用「時間」、「距離」、「成本」或其他指標來表示阻隔，
+                            以及採用何種函數形式，都是非常關鍵但不容易決定的部分。
+                        </li>
+                    </ol>
+
+                    <p class="note">
+                        建議的使用方式是：把 Lowry 模型當成
+                        <strong>情境比較與教學工具</strong>，用來看不同政策、
+                        不同基礎產業配置大致會把人口與服務業推向哪裡；
+                        真正做規劃決策時，仍要搭配更多統計、訪談與其他模型共同判讀。
+                    </p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<script>
+    // simple tab-like navigation
+    const buttons = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('main section');
+
+    function showSection(id) {
+        sections.forEach(sec => {
+            sec.style.display = sec.id === id ? 'block' : 'none';
+        });
+        buttons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.target === id);
+        });
+    }
+
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => showSection(btn.dataset.target));
+    });
+
+    // show first section by default
+    showSection('sec-1');
+</script>
+</body>
+</html>
